@@ -40,7 +40,11 @@ def generate_tracking_event(pages: list, max_amount_users: int) -> dict:
             dict with single event generated data
     """
     user_id = randint(0, max_amount_users)
-    return {"Id": user_id, "Url": choice(pages), "Timestamp": int(time.time()) - randint(0, 5)}
+    return {
+        "Id": user_id,
+        "Url": choice(pages),
+        "Timestamp": int(time.time()) - randint(0, 5),
+    }
 
 
 def generate_tracking_events(
@@ -63,9 +67,9 @@ def generate_tracking_events(
 
 
 if __name__ == "__main__":
-    configuration = yaml.load(open("configuration.yml", "r"), Loader=yaml.FullLoader).get(
-        "events_generator"
-    )
+    configuration = yaml.load(
+        open("configuration.yml", "r"), Loader=yaml.FullLoader
+    ).get("events_generator")
     pages = get_tracking_events_urls(
         alias=configuration["alias"], web_homepage=configuration["web_homepage"]
     )

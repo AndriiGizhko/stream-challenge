@@ -3,7 +3,7 @@ import socket
 from time import sleep
 
 import yaml
-from pyspark import SparkContext, SparkConf
+from pyspark import SparkConf, SparkContext
 from pyspark.streaming import StreamingContext
 
 
@@ -49,11 +49,11 @@ def update_function(value: list, state: dict) -> dict:
     if state is None:
         state = {"updated": True, "data": []}
     if len(value) > 0:
-        data = value[0] + state['data']
-        data = sorted(data, key = lambda x: x['Timestamp'], reverse=True)[:5]
+        data = value[0] + state["data"]
+        data = sorted(data, key=lambda x: x["Timestamp"], reverse=True)[:5]
         return {"updated": True, "data": data}
     else:
-        return {"updated": False, "data": state['data']}
+        return {"updated": False, "data": state["data"]}
 
 
 def create_spark_context(
@@ -67,7 +67,9 @@ def create_spark_context(
         Returns:
             Streaming Context object
     """
-    conf = SparkConf().set("spark.jars", "./jars/elasticsearch-spark-20_2.11-7.16.2.jar")
+    conf = SparkConf().set(
+        "spark.jars", "./jars/elasticsearch-spark-20_2.11-7.16.2.jar"
+    )
     sc = SparkContext("local[2]", "Processing Tracking Events", conf=conf)
 
     ssc = StreamingContext(sc, 1)
@@ -77,7 +79,7 @@ def create_spark_context(
     try:
         aggregated_events = (
             events.map(lambda x: json.loads(x))
-            .map(lambda y: (y["Id"], {'Timestamp': y["Timestamp"], "Url": y["Url"]}))
+            .map(lambda y: (y["Id"], {"Timestamp": y["Timestamp"], "Url": y["Url"]}))
             .groupByKey()
             .mapValues(list)
         )
@@ -88,7 +90,10 @@ def create_spark_context(
     states = aggregated_events.updateStateByKey(update_function)
 
     updated_records = states.filter(lambda x: x[1]["updated"] is True).map(
-        lambda x: (x[0], json.dumps({"id": x[0], "last_5_urls": [i['Url'] for i in x[1]['data']]}))
+        lambda x: (
+            x[0],
+            json.dumps({"id": x[0], "last_5_urls": [i["Url"] for i in x[1]["data"]]}),
+        )
     )
 
     updated_records.foreachRDD(
@@ -106,9 +111,12 @@ def create_spark_context(
 
 
 if __name__ == "__main__":
-    configuration = yaml.load(open("configuration.yml", "r"), Loader=yaml.FullLoader).get("spark")
+    configuration = yaml.load(
+        open("configuration.yml", "r"), Loader=yaml.FullLoader
+    ).get("spark")
     wait_for_port_to_open(
-        configuration["es_write_conf"]["es.nodes"], int(configuration["es_write_conf"]["es.port"])
+        configuration["es_write_conf"]["es.nodes"],
+        int(configuration["es_write_conf"]["es.port"]),
     )
     print("ElasticSearch initialised")
     ssc = create_spark_context(
