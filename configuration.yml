@@ -1,0 +1,31 @@
+name: "Application settings"
+
+netcat:
+  host: &events_stream_host "localhost"
+  port: &events_stream_port 9999
+
+elasticsearch:
+  host: &es_host "localhost"
+  port: &es_port "9200"
+
+spark:
+  events_stream:
+    host: *events_stream_host
+    port: *events_stream_port
+  es_write_conf: {
+    "es.nodes": *es_host,
+    "es.port": *es_port,
+    "es.resource": "tracking_events",
+    "es.input.json": "true",
+    "mapreduce.reduce.speculative": "false",
+    "mapreduce.map.speculative": "false",
+    "es.mapping.id": "id"
+  }
+
+events_generator:
+  alias: 'taxfix'
+  web_homepage: 'https://taxfix.de/'
+  n_events: 5
+  max_amount_users: 10
+
+

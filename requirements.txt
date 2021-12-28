@@ -1,0 +1,5 @@
+pyspark==3.0.0
+ultimate-sitemap-parser==0.5
+PyYAML==5.4.1
+shyaml==0.6.2
+pytest==6.2.5
