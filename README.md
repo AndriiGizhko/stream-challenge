@@ -21,8 +21,9 @@ Application consists of:
 - Unit tests `tests/`
 
 Application can be run locally using Docker via: 
- `docker build --rm -t stream-assignment .`
- `docker run -t -i stream-assignment`
+
+- `docker build --rm -t stream-assignment .`
+- `docker run -t -i stream-assignment`
 
 During run new events are generated and consumed with results written to ElasticSearch cluster.
 In console data saved to ElasticSearch index is periodically printed. 
